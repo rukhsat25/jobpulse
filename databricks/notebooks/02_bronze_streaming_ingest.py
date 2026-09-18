@@ -1,4 +1,13 @@
 # Databricks notebook source
+# /// script
+# [tool.databricks.environment]
+# environment_version = "5"
+# ///
+# MAGIC %sql
+# MAGIC CREATE SCHEMA IF NOT EXISTS jobpulse.bronze;
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC # Stage 6, Part A — Bronze Layer via Auto Loader
 # MAGIC
@@ -187,3 +196,35 @@ query.awaitTermination()
 
 print(f"Done. Row count now in {target_table}:")
 display(spark.table(target_table).count())
+
+# COMMAND ----------
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Exercise: how many rows did THIS run actually process?
+# MAGIC `query.lastProgress` only reflects the final micro-batch —
+# MAGIC `availableNow=True` can span several micro-batches to drain
+# MAGIC everything available, so we sum across ALL of `recentProgress`
+# MAGIC instead. Since `query` was just created this run, every entry
+# MAGIC in it belongs to this run — nothing left over from a prior one.
+
+# COMMAND ----------
+for p in query.recentProgress:
+    print(p["batchId"], repr(p["numInputRows"]))
+batch_progresses = query.recentProgress
+rows_this_run = sum((p["numInputRows"] or 0) for p in batch_progresses)
+
+if rows_this_run == 0:
+    print(f"[{source}] No new files found — 0 rows processed this run "
+          f"({len(batch_progresses)} micro-batch(es) ran, all empty).")
+else:
+    print(f"[{source}] Processed {rows_this_run} new rows across "
+          f"{len(batch_progresses)} micro-batch(es) this run.")
+
+# Optional: per-batch breakdown, useful once we're actually monitoring
+# this in Stage 16 rather than just eyeballing a notebook.
+for p in batch_progresses:
+    input_rows = p["numInputRows"] or 0
+    print(f"  batchId={p['batchId']}  numInputRows={input_rows}  "
+          f"durationMs={p['durationMs'].get('triggerExecution', 'n/a')}")
