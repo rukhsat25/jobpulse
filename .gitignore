@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+
+# Env / secrets
+.env
+
+# Data
+data/
+*.parquet
+*.delta/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+
+# Spark
+metastore_db/
+spark-warehouse/
+derby.log
