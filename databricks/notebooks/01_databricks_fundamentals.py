@@ -1,4 +1,8 @@
 # Databricks notebook source
+# /// script
+# [tool.databricks.environment]
+# environment_version = "5"
+# ///
 # MAGIC %md
 # MAGIC # Stage 5 — Databricks Fundamentals
 # MAGIC
@@ -105,8 +109,8 @@ PAYLOAD_SCHEMA = StructType([
 ])
 
 # EDIT this path to point at one real landed file from cell above:
-date_partition = "2026-09-15"          # <-- change me
-filename = "arbeitnow_20260915T000000Z.json"  # <-- change me
+date_partition = "2026-09-16"          
+filename = "arbeitnow_20260916T183930Z.json"
 
 file_path = f"{arbeitnow_root}/{date_partition}/{filename}"
 
